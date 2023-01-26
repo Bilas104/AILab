@@ -1,0 +1,133 @@
+% 1) To determine whether the first two elements of a list are same.
+double_header([X|[X|Rest]]).
+
+% 2) To determine whether a list is not a two-element list.
+no_doubleton([]).
+no_doubleton([X]).
+no_doubleton([X|[Y|[Z|Rest]]]).
+
+% 3) To determine whether two lists are of same length.
+same_length([], []).
+same_length([X|Rest1], [Y|Rest2]):-
+    same_length(Rest1, Rest2).
+
+% 4) To determine length of a list using your own number system, that does not contain more than two symbols.
+length1([], 0).
+length1([X|Rest], f(N)):-
+    length1(Rest, N).
+%symbols used are (f, 0). outputs are like f(f(f(0))) = 3   
+%-----my implementation
+my_length1([], 0).
+my_length1([X|Rest], M):-
+    my_length1(Rest, N),
+    M is N + 1.
+%----------------------
+
+% 5) To determine whether two lists are of same length using the length predicate developed in 4
+same_length1(List1, List2):-
+    length1(List1, M),
+    length1(List2, M).
+
+% 6) To find the last element of a list.
+last_element([X], X).
+last_element([_|Rest], X):-
+    last_element(Rest, X).
+
+% 7) To find whether an element is a member of a list.
+our_member(X, [X|_]).
+our_member(X, [_|Rest]):-
+    our_member(X, Rest).
+
+% 8) To find whether two elements are next to each other in a list.
+next_to(X, Y, [X|[Y|_]]).
+next_to(X, Y, [_|Rest]):-
+    next_to(X, Y, Rest).
+
+% 9) To append two lists in a third list.
+our_append([], L, L).
+our_append([X|L1], L2, [X|L3]):-
+    our_append(L1, L2, L3).
+    
+% 10) To find the last element of a list using append predicate developed in 9.
+last1(L, X):-
+    our_append(_, [X], L).
+    
+% 11) To find whether an element is a member of a list using append predicate developed in 9.
+our_member1(L, X):-
+    our_append(_, [X|_], L).
+
+% 12) To find whether two elements are next to each other in a list using append predicate developed in 9.
+next_to1(X, Y, L):-
+    our_append(_, [X|[Y|_]], L).
+
+% 13) To reverse a list in another list.
+reverse1([], []).
+reverse1([H|T], L):-
+    reverse1(T, Z),
+    our_append(Z, [H], L).
+
+% 14) To determine whether a list is a palindrome [ the structure of predicate: palindrome(L) ].
+identical_list([], []).
+identical_list([X|Rest1], [X|Rest2]):-
+    identical_list(Rest1, Rest2).
+palindrome(L):-
+    reverse1(L, RevL),
+    identical_list(L, RevL).
+    
+% 15) To find the last but one element of a list.
+last_but_one(X,[X,_]).
+last_but_one(X,[_,Y|Ys]) :- last_but_one(X,[Y|Ys]).
+	
+% 16) To find the sum of all elements of a list.
+sum(0, []).
+sum(Total, [Head|Tail]) :- sum(Sum, Tail), Total is Head + Sum.
+
+% 17) To find the maximum number from a list.
+max_of_two(X,Y,X) :- X >= Y.
+max_of_two(X,Y,Y) :- X < Y.
+list_max_elem([X],X).
+list_max_elem([X,Y|Rest],Max) :-
+   list_max_elem([Y|Rest],MaxRest),
+   max_of_two(X,MaxRest,Max).
+   
+% 18) To find gcd of two integers.
+gcd(X,0,X).
+gcd(X,Y,Z):- 
+ R is mod(X,Y),
+ gcd(Y,R,Z).
+ 
+% 19) To determine whether a given integer number is prime.
+divisible(X,Y) :- 0 is X mod Y, !.
+
+divisible(X,Y) :- X > Y+1, divisible(X, Y+1).
+
+isPrime(2) :- true,!.
+isPrime(X) :- X < 2,!,false.
+isPrime(X) :- not(divisible(X, 2)).
+
+% 20) To determine whether two positive integer numbers are co-prime.
+
+% 21) To determine the prime factors of a given positive integer.
+prime_factors(N,L) :- N > 0,  prime_factors(N,L,2).
+
+prime_factors(1,[],_) :- !.
+prime_factors(N,[F|L],F) :-                           % N is multiple of F
+   R is N // F, N =:= R * F, !, prime_factors(R,L,F).
+prime_factors(N,L,F) :- 
+   next_factor(N,F,NF), prime_factors(N,L,NF).        % N is not multiple of F
+
+next_factor(_,2,3) :- !.
+next_factor(N,F,NF) :- F * F < N, !, NF is F + 2.
+next_factor(N,_,N).                                 % F > sqrt(N)
+
+% 22) Goldbach's conjecture.
+
+
+% 23) To count numbers greater than 100.0 in a list.
+
+
+% 24) To split a list of numbers in two lists such that one contains negative numbers and
+other contains positive numbers.
+
+    
+
