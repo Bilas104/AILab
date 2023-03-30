@@ -1,0 +1,351 @@
+% 1. To add an element to a list provided it is not present in the list.  
+% add_element(element to add, input list, output list)  
+our_member(X, [X|_]).
+our_member(X, [_|Rest]):-
+    our_member(X, Rest).
+
+add_member(X, [], [X]) :- !.
+add_member(X, L, L):-
+    our_member(X, L), !,
+    add_member(X, L, [L|X]).
+
+% 2. To delete first occurrence of an element from a list.  
+% efface(delete element, input list, output list)  
+efface(_, [], []) :- !.  
+efface(X, [X|L], L) :- !.  
+efface(X, [B|L], [B|M]) :-  
+efface(X, L, M). 
+
+% 3. To delete all occurrences of an element from a list.  
+% delete(delete element, input list, output list) 
+delete(_, [], []) :- !.  
+delete(X, [X|L], L1) :- delete(X, L, L1), !.  
+delete(X, [B|L], [B|L1]) :-  
+delete(X, L, L1). 
+
+% 4. To replace the first occurrence of an element X in L with Y giving the result in L1.
+% replace_first(original, replacement, input list, output list)
+replace_first(_X, _Y, [], []):- !.  
+replace_first(X, Y, [X|L], [Y|L]) :- !.  
+replace_first(X, Y, [B|L], [B|M]) :-  
+replace_first(X, Y, L, M). 
+
+% 5. has_duplicate(L), that determines whether list L has duplicate elements. 
+has_duplicate([X|L]) :-  
+our_member(L, X),  
+!. 
+  
+has_duplicate([_|L]) :-  
+has_duplicate(L). 
+
+% 6. To duplicate the elements of a list.
+duplicate([],[]).  
+duplicate([B|L], [B|[B|M]] ):-  
+duplicate(L, M).
+
+% 7. To duplicate the elements of a list a given number of times.
+% Example:  
+% ?- duplicate2([a,b,c],3,X).  
+% {X = [a,a,a,b,b,b,c,c,c]}  
+  
+% duplicate2(input list, Number of times, output list)  
+  
+% What are the results of the goal:  
+% ?- duplicate2(X,3,Y).  
+% I got X=Y, Y=[].  
+  
+  
+append([], L, L) :- !.  
+append([X|L], L2, [X|L3]) :-  
+append(L, L2, L3).  
+  
+replicate(_Element, 0, _List) :- !. % if we need to replicate 0 times then we don't need to match further  replicate(Element, 1, [Element]) :- !.  
+replicate(Element, Ntimes, X) :-  
+Ntimes > 0,  
+N1 is Ntimes-1,  
+replicate(Element, N1, X1),  
+X = [Element|X1].  
+  
+  
+duplicate2([], _N, []) :- !.  
+duplicate2([E|L], N, X) :-  
+N > 0,  
+duplicate2(L, N, X1), % duplicate sublist with result in X1  
+replicate(E, N, X2), % replicate current element N times and store in list X2  
+append(X2, X1, X). % append replica list with current result sublist to get output 
+
+% 8. To determine whether a list is a sub list of another list. A list is a sub list of another list if it’s elements are prese nt in another list consecutively and in the same order. 
+prefix([], _).  
+prefix([X|L], [X|M]) :-  
+prefix(L, M).  
+  
+isSubList([], _).  
+isSubList([X|L], [X|M]) :-  
+prefix(L, M),  
+!.  
+  
+isSubList([X|L], [_|M]) :-  
+isSubList([X|L], M).  
+
+% 9. To determine whether a set is a subset of another set.  
+%isSubset(smaller set, bigger, set)  
+  
+% assuming set to be a list with no duplicates and no ordering  
+isSubset([], _).  
+isSubset([X|Set], SuperSet) :-  
+our_member(SuperSet, X),  
+!,  
+isSubset(Set, SuperSet).  
+
+% 10. To determine intersection of two sets.  
+% intersection(set1, set2, output set)  
+  
+intersection([], _SetB, []).  
+intersection([X|SetA], SetB, [X|InterSection]) :-  
+our_member(SetB, X),  
+!,  
+intersection(SetA, SetB, InterSection).  
+  
+intersection([_X|SetA], SetB, InterSection) :-  
+intersection(SetA, SetB, InterSection). 
+
+% 12.To determine union of two sets.  
+% union(set1, set2, union)  
+  
+%logic reverse of intersection, but base case copies all setb elements  
+  
+union([], SetB, SetB).  
+union([X|SetA], SetB, [X|Union]) :-  
+not(our_member(SetB, X)),  
+!,  
+union(SetA, SetB, Union).  
+  
+union([_X|SetA], SetB, Union) :- 
+union(SetA, SetB, Union).  
+
+% 13.To determine difference of two sets.  
+%difference(set1, set2, difference) => all elements in set A not in set B  
+  
+difference([], _SetB, []).  
+difference([X|SetA], SetB, [X|Diff]) :-  
+not(our_member(SetB, X)),  
+!,  
+difference(SetA, SetB, Diff).  
+  
+difference([_|SetA], SetB, Diff) :-  
+difference(SetA, SetB, Diff).  
+  
+ 
+% 14.To determine symmetric difference of two sets.  
+% symmetricDiff(set1, set2, Diff) => union(seta, setb) - intersection(seta, setb)  
+  
+symmetricDiff(SetA, SetB, Diff) :-  
+union(SetA, SetB, Union),  
+intersection(SetA, SetB, InterSection),  
+difference(Union, InterSection, Diff).  
+
+
+% 15. To find the last but one element of a list.  
+%lastButOne(List, output element)  
+  
+lastButOne(L, X) :-  
+append(L1, [_], L),  
+append(_, [X], L1).  
+  
+ 
+% 16. To find the K'th element of a list. The first element in the list is number 1.  
+% Example:  
+% ?- element_at(X,[a,b,c,d,e],3).  
+% {X = c}  
+  
+kthElement(X, [X|_], 1) :- !.  
+kthElement(Output, [_|List], Position) :-  
+Position > 1,  
+NewPosition is Position-1,  
+kthElement(Output, List, NewPosition).  
+  
+ 
+% For the problems 17 – 18 assume L1, L2 and L denote lists of terms.  
+  
+
+  
+% 17. To replace n th element by another element X in L, leaving the resultant list in L1.  %replaceNth(input list, Position, Element, Outputlist)  
+% assuming list starts with 1  
+% assuming X is user input  
+  
+replaceNth([_X|List], 1, Element, [Element|List]) :- !.  
+replaceNth([X|List], Position, Element, [X|Output]) :-  
+Position \= 1,  
+NewPosition is Position-1,  
+replaceNth(List, NewPosition, Element, Output).  
+  
+ 
+% 18. to remove every N'th element from a list.  
+% Example:  
+% ?- remove([a,b,c,d,e,f,g,h,i,k],3,X).  
+% {X = [a,b,d,e,g,h,k]}  
+  
+remove(List, Position, Output) :-  
+remove(List, Position, Position, Output).  
+  
+remove([], _, _, []).  
+remove([X|List], Position, CurPos, [X|Output]) :-  
+CurPos \= 1,  
+NewCurPosition is CurPos-1,  
+!,  
+remove(List, Position, NewCurPosition, Output).  
+  
+remove([_X|List], Position, 1, Output) :-  
+remove(List, Position, Position, Output).  
+  
+ 
+% 19. Interleave alternate elements of L1 and L2 into L. For example, if L1= [a, b, c] and L2= [1, 2], then L= [a, 1, b , 2, c].  
+% interleave(list 1, list 2, output) => if any list has left over elements after interleaving simply paste the rest in outpu t  
+  
+  
+interleave([], L, L) :- !.  
+interleave(L, [], L) :- !.  
+interleave([X|L1], [Y|L2], [X|[Y|L]]) :-  
+interleave(L1, L2, L).  
+  
+
+% 20.Transpose L1, L2 into L. That is, if L1= [a, b, c] and L2= [1, 2, 3], then L= [(a, 1), (b, 2), (c, 3)].    
+transpose([X], [Y], [(X,Y)]) :- !.  
+transpose([A|L1], [B|L2], L) :-  
+transpose(L1, L2, L3),  
+L = [(A,B) | L3].  
+  
+ 
+% 21. To split a list into two parts; the length of the first part is given. Do not use any predefined predicates.  % Example:  
+% ?- split([a,b,c,d,e,f,g,h,i,k],3,L1,L2).  
+% {L1 = [a,b,c], L2 = [d,e,f,g,h,i,k]}  
+  
+split(List, 0, [], List) :- !.  
+split([X|List], Pos, [X|L1], L2) :-  
+NewPos is Pos-1,  
+split(List, NewPos, L1, L2).  
+  
+
+% For the problems 22 - 30 assume L and L1 is a list of terms.  
+  
+  
+% 22. To extract a slice from a list. Given two indices, I and K, the slice is the list containing the elements between t he I'th and K'th element of the original list (both limits included). Start counting the elements with 1.  % Example:  
+% ?- slice([a,b,c,d,e,f,g,h,i,k],3,7,L).  
+% {X = [c,d,e,f,g]}  
+  
+slice(List, Beg, End, Output) :-  
+S1 is Beg-1,  
+S2 is End-S1,  
+split(List, S1, _, Keep),  
+split(Keep, S2, Output, _).  
+  
+
+% 23. To insert an element at a given position into a list.  
+% Example:  
+% ?- insert_at(alfa,[a,b,c,d],2,L).  
+% {L = [a,alfa,b,c,d]}  
+  
+insert_at(Element, List, 1, [Element|List]) :- !.  
+insert_at(Element, [X|List], Position, [X|Output]) :-  
+Position \= 1,  
+NewPosition is Position-1,  
+!,  
+insert_at(Element, List, NewPosition, Output).  
+  
+
+% 24. To remove_every_other (L, L1). List L1 is just list L with every other element removed (the two lists should h ave the same first element).  
+  
+remove_every_other(Input, Output) :-  
+remove(Input, 2, Output). % remove every nth element  
+
+
+% 25. cutlast (L, L1) that defines L1 to be obtained from L with last element removed.  
+  
+cutLast(Input, Output) :-  
+append(Output, [_], Input).  
+  
+ 
+% 26. trim (N, L, L1) that defines L1 to be obtained from L with first N elements removed.    
+trim(0, L, L) :- !.  
+trim(N, [_|L], L1) :-  
+N > 0,  
+N1 is N-1,  
+!,  
+trim(N1, L, L1).  
+  
+ 
+% 27.trimlast (N, L, L1) that defines L1 to be obtained from L with last N elements removed.    
+trimlast(0, L, L) :- !.  
+trimlast(N, L, L1) :-  
+N > 0,  
+N1 is N-1,  
+cutLast(L, L2),  
+!,  
+trimlast(N1, L2, L1).  
+  
+
+% 28.exchange_first_last(L, L1), defines that L1 to be obtained from L with first and last elements exchanged. Exa mple: ?-exchange_first_last([a, b, c, d, e], X). {X= [e, b, c, d, a]}  
+  
+exchange_first_last([], []).  
+exchange_first_last([X], [X]).  
+exchange_first_last(Inputlist, Outputlist) :-  
+append([First], Temp1, Inputlist),  
+append(Temp2, [Last], Temp1),  
+append(Temp2, [First], Temp3),  
+append([Last], Temp3, Outputlist).  
+  
+ 
+% 29 circular_left_shift(L, L1). That is, if L= [a, b, c, d, e, f] then L1= [b, c, d, e, f, a]..  
+  
+circular_left_shift(In, Out) :-  
+append([First], Temp1, In),  
+append(Temp1, [First], Out).  
+  
+ 
+% 30. circular_right_shift(L, L1). That is, if L= [a, b, c, d, e, f] then L1= [f, a, b, c, d, e] [Try using circular_left_shif t in 27 to implement circular_right_shift.]  
+  
+%perform circular left shift len-1 times 
+  
+circular_right_shift(In, Out) :-  
+length(In, Len),  
+Times is Len-1,  
+circular_right_shift(In, Out, Times).  
+  
+circular_right_shift(In, In, 0) :- !.  
+circular_right_shift(In, Out, Times) :-  
+Times > 0,  
+NewTimes is Times-1,  
+circular_left_shift(In, Out1),  
+circular_right_shift(Out1, Out, NewTimes).  
+
+
+% 31.To delete the middle element from an odd-numbered list L into a list L1.  
+  
+deleteMidOdd(In, Out) :-  
+length(In, Len),  
+Len mod 2 =:= 1,  
+Pos is Len//2 + 1, % integer division  
+removeMidOdd(In, Out, Pos).  
+  
+removeMidOdd([_|In], In, 1).  
+removeMidOdd([X|In], [X|Out], Position) :-  
+Position > 1,  
+NewPosition is Position-1,  
+!,  
+removeMidOdd(In, Out, NewPosition).  
+  
+   
+% 32.To delete two middle elements from an even-numbered list L into a list L1.  
+  
+deleteMidEven(In, Out) :-  
+length(In, Len),  
+Len mod 2 =:= 0,  
+Pos is Len/2,  
+removeMidEven(In, Out, Pos).  
+  
+removeMidEven([_,_|In], In, 1).  
+removeMidEven([X|In], [X|Out], Position) :-  
+Position > 1,  
+NewPosition is Position-1,  
+!,  
+removeMidEven(In, Out, NewPosition).

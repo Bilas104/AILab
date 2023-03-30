@@ -1,0 +1,182 @@
+/* 1. To find factorial N using accumulator. */
+factorial(1,1).
+factorial(N,R):- K is N-1,factorial(K,X),R is N*X.
+
+
+/* 2. To find length of a list using accumulator. */
+len1([],N,N).
+len1([X|L],K,N):- Z is K+1,len1(L,Z,N).
+len(L,N):-len1(L,0,N).
+
+
+/* 3.To remove duplicate elements from a list using accumulator. */
+append([],L,L).
+append([X|L1],L2,[X|L3]):- append(L1,L2,L3).
+
+remove_duplicate1([],L,L).
+remove_duplicate1([X|L],L1,R):-member(X,L),!,remove_duplicate1(L,L1,R).
+remove_duplicate1([X|L],L1,R):-append(L1,[X],Y),remove_duplicate1(L,Y,R).
+remove_duplicate(L,R):- remove_duplicate1(L,[],R).
+
+
+/* 4. To remove duplicate elements from a list without using accumulator. */
+remove_duplicate2([],[]).
+remove_duplicate2([X|L],R):- member(X,L),!,remove_duplicate2(L,R).
+remove_duplicate2([X|L],[X|R]):-remove_duplicate2(L,R).
+
+
+/* 5. To reverse a list using accumulator. */
+reverse1([],L,L).
+reverse1([X|L],L1,R):-reverse1(L,[X|L1],R).
+reverse2(L,R):- reverse1(L,[],R).
+
+
+/* 6. Next Higher Permutation.
+A positive integer is represented by a list of decimal digits. Its next
+higher permutation is defined to be the next greater integer composed of
+exactly the same digits. For example, the next higher permutation of
+123542 is 124235.
+ Write a) a declarative Prolog program
+       b) an efficient procedural Prolog program
+that receive a list of decimal digits and return its next higher permutation
+in a list. */
+/* a) a declarative Prolog program */
+permute([],[]).
+permute(List,[X|Perm]) :-
+    select(X,List,Rest),
+    permute(Rest,Perm).
+
+higher([X],[Y]):- Y>X.
+higher([X|L],[Y|L1]):-Y>X,!.
+higher([X|L],[Y|L1]):-Y=:=X,higher(L,L1).
+
+higher_permutation(L,P):- permute(L,P),higher(L,P).
+
+far_higher_permutation(L,P):- permute(L,L1),higher(L,L1),higher(L1,P).
+
+next_higher_permutation(L,P):- higher_permutation(L,P),not(far_higher_permutation(L,P)).
+
+
+/* 7. Eight Queens’ Problem.
+Eight Queens are to be placed in an 8x8 chess board such that no queen
+attack each other.
+Write a Prolog program to obtain solution(s) of Eight Queen Problem. */
+
+/* Input will be a List of positions in each column e.g. [1,2,3,4,5,6,7,8] 
+Then the output will be all the possible ways of arrangement. */
+
+member(X,[X|_]):-!.
+member(X,[Y|L]):- member(X,L). 
+
+duplicate_mod_eight([X|L]):- Y is (X mod 8), member(Y,L),!.
+duplicate_mod_eight([X|L]):- duplicate_mod_eight(L). 
+
+change([],[],K).
+change([X|L],[Y|R],K):- Z is (K*8),Y is Z+X,K1 is K+1,change(L,R,K1).  
+
+check(M,[N|L1],[Y|L],X):- Z is Y-X,((A is (Z mod 9),A=:=0,N>M);(B is (Z mod 7),B=:=0,N<M)),!.
+check(M,[N|L1],[Y|L],X):- check(M,L1,L,X). 
+
+difference_mod_seven_nine([Y|L1],[X|L]):- check(Y,L1,L,X),!.
+difference_mod_seven_nine(L1,[X|L]):- difference_mod_seven_nine(L1,L).
+
+eight_queens1(L,L):-not(duplicate_mod_eight(L)),!,change(L,L1,0),not(difference_mod_seven_nine(L,L1)),!.
+eight_queens(L,R):- permute(L,L1),eight_queens1(L1,R).
+
+
+/* 8. Tower of Hanoi Problem.
+The tower of Hanoi is a game played with three poles and a set of N discs.
+The discs are graded in diameter, and fit onto the poles by means of a
+hole cut through the center of each disc. Initially all the discs are on the
+left-hand pole. The object of the game is to move all the discs onto the
+center pole. The right-hand pole can be used as a “spare” pole, temporary
+resting place for discs. Each time a disc is moved from one pole to another, two
+constraints must be observed: only the top disc on a pole can
+be moved, and no disc may be placed on top of a smaller one.
+Write Prolog program to enumerate the moves to transfer N discs from
+the left-hand pole to the center pole. */
+
+/* Define the tower of hanoi predicates */
+tower_of_hanoi(N) :-
+    move(N, left, center, right).
+
+/* Define the base case for moving one disc */
+move(1, Source, Destination, _) :-
+    write('Move top disk from '),
+    write(Source),
+    write(' to '),
+    write(Destination),
+    nl.
+
+/* Define the recursive case for moving N discs */
+move(N, Source, Destination, Spare) :-
+    N > 1,
+    M is N - 1,
+    move(M, Source, Spare, Destination),
+    move(1, Source, Destination, _),
+    move(M, Spare, Destination, Source).
+
+
+
+/* 9. There is an old song that goes as follows:
+99 bottles of coke on the wall
+99 bottles of coke
+You take one down and pass it around
+98 bottles of coke on the wall
+and so on,
+until the last verse
+1 bottle of coke on the wall
+1 bottle of coke
+You take one down and pass it around
+No bottle of coke on the wall.
+Write a Prolog program cola that receives a positive integer and prints
+the Lyrics of the song. The program should print all the verses, and when
+it gets to the last verse, it must print 1 bottle, not 1 bottles and no bottle
+rather than 0 bottles. */
+
+lyrics(0):- write(1),write(" bottle, not "),
+            write(1),write(" bottles and no bottle rather than "),
+            write(0),write(" bottles.").
+lyrics(N):-write(N),write(" bottles of coke on the wall \n"),
+           write(N),write(" bottles of coke \n"),
+           write("You take one down and pass it around \n"),
+           N1 is N-1,
+           write(N1),write(" bottles of coke on the wall \n\n"),
+           lyrics(N1).
+
+
+
+/* 10. One way of representing the positive whole numbers is a Prolog terms
+involving the integer 0 and the successor functor s with one argument. Thus, we
+represent 0 by itself, 1 by s (0), 2 by s (s (0)) and so on. Write definitions of
+standard arithmetic operations addition, multiplication and subtraction, given
+the above representation of numbers.
+For example, the predicate plus may be defined to exhibit the following
+behavior.
+? - plus (s (s (0)), s (s (s (0))), X).
+{X= s (s (s (s (s (0)))))}
+that is, 2+3 = 5.
+Also define the predicate “less than”, “greater than”, “less than equal to” and
+“greater than equal to”. */
+
+own_number(0,0).
+own_number(N,a(X)):- N1 is N-1,own_number(N1,X). 
+
+number1(0,N,N).
+number1(a(X),K,N):- K1 is K+1, number1(X,K1,N).
+number(X,N):- number1(X,0,N).
+
+plus(X,Y,Z):- number(X,A),number(Y,B),C is A+B,own_number(C,Z).
+
+multiplication(X,Y,Z):- number(X,A),number(Y,B),C is A*B,own_number(C,Z).
+
+subtraction(X,Y,Z):-number(X,A),number(Y,B),A>=B,!,C is A-B,own_number(C,Z).
+subtraction(X,Y,Z):-number(X,A),number(Y,B),C is B-A,own_number(C,Z).
+
+less_than(X,Y):-number(X,A),number(Y,B),A<B.
+
+greater_than(X,Y):-number(X,A),number(Y,B),A>B.
+
+less_than_equal_to(X,Y):-number(X,A),number(Y,B),A=<B.
+
+greater_than_equal_to(X,Y):-number(X,A),number(Y,B),A>=B.
