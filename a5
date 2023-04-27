@@ -1,0 +1,198 @@
+/* 1. Remove the K'th element from a list. */
+remove_at1(A,[A|L],K,L,K).
+remove_at1(A,[P|L],K,[P|R],T):- Z is T+1,remove_at1(A,L,K,R,Z).
+remove_at(X,L,K,R):- remove_at1(X,L,K,R,1).
+
+
+/* 2. Extract a given number of randomly selected elements from a list. */
+len([],K) :- K is 0.
+len([X|L],P) :- len(L,N), P is N+1.
+
+extract([],K,[]).
+extract(L,0,[]).
+extract(L,K,[M|R]):- len(L,X),X>1,!,random(1,X,P),remove_at(M,L,P,T),Z is K-1,extract(T,Z,R).
+extract(L,K,[M|R]):- len(L,X),X=:=1,remove_at(M,L,X,T),Z is K-1,extract(T,Z,R).
+
+
+/* 3. Generate a random permutation of the elements of a list. */
+random_permutation(L,R):- len(L,K),extract(L,K,R).
+
+
+/* 4. Generate the combinations of K distinct objects chosen from the N
+elements of a list */
+combination(0,L,[]).
+combination(K,[X|R],L):-
+ K > 0,
+ combination(K,R,L).
+combination(K,[X|R],[X|L]):-
+ K > 0,
+ K1 is K-1,
+ combination(K1,R,L).
+
+
+/* 5. Implement Permutation Sort. */
+ordered([]).
+ordered([X]).
+ordered([X|[Y|R]]):-
+ X =< Y,
+ ordered([Y|R]).
+permutation_sort(P,Q):-
+ permutation(P,Q),
+ ordered(Q).
+
+
+ /* 6. Implement Bubble Sort. */
+push_to_end([],[]):-!.
+push_to_end([X],[X]):-!.
+push_to_end(P,Q):-
+ append(L,[X],P),
+ push_to_end(L,L1),
+ append(L2,[Y],L1),
+ Y >= X,!,
+ append(L2,[X],Q1),
+ append(Q1,[Y],Q).
+push_to_end(P,P).
+bubblesort([],[]).
+bubblesort(P,Q):-
+ length(P,N),
+ N > 0,
+ push_to_end(P,P1),
+ append(L,[X],P1),
+ bubblesort(L,L1),
+ append(L1,[X],Q).
+
+
+ /* 7. Implement Selection Sort. */ 
+ select_smallest([X],X,[]).
+select_smallest([X|[Y|R]],S,[X|R1]):-
+ select_smallest([Y|R],S,R1),
+ S =< X,!.
+select_smallest([X|[Y|R]],X,[Y|R]).
+selection_sort([],[]).
+selection_sort(P,[X|R1]):-
+ length(P,N),
+ N > 0,
+ select_smallest(P,X,R),
+ selection_sort(R,R1).
+
+
+/* 8. Implement Insertion Sort. */
+insert(X,[],[X]).
+insert(X,[Y|R],[X|[Y|R]]):-
+ X =< Y,!.
+insert(X,[Y|R],[Y|R1]):-
+ insert(X,R,R1).
+insertion_sort([],[]).
+insertion_sort([X|R],L):-
+ insertion_sort(R,R1),
+ insert(X,R1,L).
+
+
+ /* 9. Implement Merge Sort. */
+divide([],[],[]).
+divide([X],[X],[]).
+divide([X|[Y|R]],[X|L],[Y|H]):-
+ divide(R,L,H).
+merge([],L,L).
+merge([X|L],[],[X|L]).
+merge([X|L],[Y|R],[X|M]):-
+ X =< Y,!,
+ merge(L,[Y|R],M).
+merge([X|L],[Y|R],[Y|M]):-
+ merge([X|L],R,M).
+mergesort([],[]).
+mergesort([X],[X]).
+mergesort([X|[Y|R]],S):-
+ divide([X|[Y|R]],L,H),
+ mergesort(L,L1),
+ mergesort(H,H1),
+ merge(L1,H1,S).
+
+
+/* 10. Implement Quick Sort using Accumulator. */
+quicksort_acc(L,L1):-
+ qsort(L,[],L1).
+qsort([],L,L).
+qsort([X],L,[X|L]).
+qsort([X|[Y|R]],A,S):-
+ partition1(X,[X|[Y|R]],L,M,G),
+ qsort(G,A,GA),
+ append(M,GA,MGA),
+ qsort(L,MGA,S).
+partition1(X,[],[],[],[]).
+partition1(X,[Y|R],[Y|L],M,G):-
+ Y < X,
+ partition1(X,R,L,M,G).
+partition1(X,[Y|R],L,[Y|M],G):-
+ Y = X,
+ partition1(X,R,L,M,G).
+partition1(X,[Y|R],L,M,[Y|G]):-
+Y > X,
+ partition1(X,R,L,M,G).
+
+
+/* 11. Implement Quick Sort without Accumulator. */
+partition1(X,[],[],[],[]).
+partition1(X,[Y|R],[Y|L],M,G):-
+ Y < X,
+ partition1(X,R,L,M,G).
+partition1(X,[Y|R],L,[Y|M],G):-
+ Y = X,
+ partition1(X,R,L,M,G).
+partition1(X,[Y|R],L,M,[Y|G]):-
+ Y > X,
+ partition1(X,R,L,M,G).
+quicksort([],[]).
+quicksort([X],[X]).
+quicksort([X|[Y|R]],S):-
+ partition1(X,[X|[Y|R]],L,M,G),
+ quicksort(G,G1),
+ quicksort(L,L1),
+ append(L1,M,LM),
+ append(LM,G1,S).
+
+
+/* 12. Eliminate consecutive duplicates of list elements. */
+remove_consec_dup([],[]).
+remove_consec_dup([X],[X]).
+remove_consec_dup([X|[Y|R]],S):-
+ remove_consec_dup([Y|R],S),
+ X = Y,!.
+remove_consec_dup([X|[Y|R]],[X|S]):-
+remove_consec_dup([Y|R],S).
+
+
+/* 13. Run-length encoding of a list. */
+encode([],[]).
+encode([X],[[1,X]]).
+encode([X|[X|R]],[[N1,X]|S]):-
+ encode([X|R],[[N,X]|S]),!,
+ N1 is N+1.
+encode([X|[Y|R]],[[1,X]|S]):-
+ encode([Y|R],S).
+
+
+/* 14. Modified run-length encoding. */
+modify([],[]).
+modify([[N,X]|R],[X|R1]):-
+ N = 1,!,
+ modify(R,R1).
+modify([[N,X]|R],[[N,X]|R1]):-
+ modify(R,R1).
+modified_encode(L,S):-
+ encode(L,L1),
+ modify(L1,S).
+
+
+/* 15. Decode a run-length encoded list.*/
+decode([],[]).
+decode([[N,X]|R],L):-
+ N = 0,!,
+ decode(R,L).
+decode([[N,X]|R],[X|L]):-
+ N1 is N-1,!,
+ decode([[N1,X]|R],L).
+decode([X|R],[X|L]):-
+ decode(R,L).
+
+
